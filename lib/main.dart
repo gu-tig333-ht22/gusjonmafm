@@ -29,14 +29,26 @@ class MyApp extends StatelessWidget {
 class MainView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: appBarMain(), body: checkList(context));
+    return Scaffold(
+        appBar: appBarMain(),
+        body: Column(children: [
+          rowTasks(),
+          addButtonFirstView(context),
+        ]));
   }
-}
 
-Widget checkList(context) {
-  return Column(children: [
-    Expanded(child: RowTask()),
-    Align(
+  Widget rowTasks() {
+    return Expanded(
+      child: Consumer<MyChangeNotifier>(
+          builder: (context, myChangeNotifier, child) => ListView.builder(
+              itemBuilder: (context, index) =>
+                  listTile(myChangeNotifier.getListTasks[index]),
+              itemCount: myChangeNotifier.getListTasks.length)),
+    );
+  }
+
+  Widget addButtonFirstView(context) {
+    return Align(
         alignment: Alignment.bottomRight,
         child: Padding(
           padding: EdgeInsets.all(15),
@@ -54,40 +66,42 @@ Widget checkList(context) {
                   size: 56,
                 )),
           ),
-        )),
-  ]);
-}
+        ));
+  }
 
-Widget RowTask() {
-  return Consumer<MyChangeNotifier>(
-      builder: (context, myChangeNotifier, child) => ListView.builder(
-          itemBuilder: (context, index) =>
-              listTile(index, context, myChangeNotifier.getListTasks),
-          itemCount: myChangeNotifier.getListTasks.length));
-}
+  Widget listTile(Task task) {
+    return ListTile(
+        shape: Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
+        leading: checkBox(task),
+        title: textListTile(task),
+        trailing: iconButton(task));
+  }
 
-Widget listTile(index, context, List<Task> list) {
-  return Consumer<MyChangeNotifier>(
-      builder: (context, myChangeNotifier, child) => ListTile(
-          shape: Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
-          leading: Checkbox(
-              value: list[index].getDone,
-              onChanged: (bool? valueDone) {
-                myChangeNotifier.taskDone(list[index].getId, valueDone);
-              }),
-          title: text(list[index].getLabel, list[index].getDone),
-          trailing: IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () {
-              myChangeNotifier.deleteListTask = list[index].getId;
-            },
-          )));
-}
+  Widget checkBox(Task task) {
+    return Consumer<MyChangeNotifier>(
+        builder: (context, myChangeNotifier, child) => Checkbox(
+            value: task.getDone,
+            onChanged: (bool? valueDone) {
+              myChangeNotifier.taskDone(task.getId, valueDone);
+            }));
+  }
 
-Widget text(text, value) {
-  if (value == true) {
-    return Text(text, style: TextStyle(decoration: TextDecoration.lineThrough));
-  } else {
-    return Text(text);
+  Widget iconButton(Task task) {
+    return Consumer<MyChangeNotifier>(
+        builder: (context, myChangeNotifier, child) => IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                myChangeNotifier.deleteListTask = task.getId;
+              },
+            ));
+  }
+
+  Widget textListTile(Task task) {
+    if (task.getDone == true) {
+      return Text(task.getLabel,
+          style: TextStyle(decoration: TextDecoration.lineThrough));
+    } else {
+      return Text(task.getLabel);
+    }
   }
 }

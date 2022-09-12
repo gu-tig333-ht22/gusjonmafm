@@ -29,7 +29,7 @@ class Task {
 class MyChangeNotifier extends ChangeNotifier {
   final List<String> _dropdownValueList = ['All', 'Done', 'Undone'];
   late String _dropdownValue = _dropdownValueList.first;
-  late List<Task> newList = [];
+
   int globalId = 6;
 
   late List<Task> _listTasks = [
@@ -42,6 +42,8 @@ class MyChangeNotifier extends ChangeNotifier {
 
   List<String> get getDropdownValueList => _dropdownValueList;
   String get getDropdownValue => _dropdownValue;
+
+  late List<Task> newList = [];
 
   get getListTasks {
     if (_dropdownValue == 'All') {
@@ -74,10 +76,6 @@ class MyChangeNotifier extends ChangeNotifier {
   taskDone(int id, bool? valueDone) {
     _listTasks.firstWhere((task) => task._id == id).setDone = valueDone;
     notifyListeners();
-  }
-
-  int getTaskId(Task task) {
-    return identityHashCode(task);
   }
 
   addTask(String label, {int? id}) {

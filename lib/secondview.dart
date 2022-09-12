@@ -14,25 +14,24 @@ class SecondView extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 40, bottom: 40),
-              child: textField(context),
-            ),
-            addButton()
+            Container(height: 40),
+            textField(context),
+            Container(height: 40),
+            addButtonSecondView()
           ],
         ),
       ),
     );
   }
 
-  Widget addButton() {
+  Widget addButtonSecondView() {
     return Consumer<MyChangeNotifier>(
         builder: (context, myChangeNotifier, child) => TextButton.icon(
               // <-- TextButton
               onPressed: () {
                 myChangeNotifier.addTask(myController.text);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MainView()));
+                Navigator.pop(context);
+                ;
               },
               style: TextButton.styleFrom(primary: Colors.black),
               icon: Icon(
@@ -57,8 +56,7 @@ class SecondView extends StatelessWidget {
               controller: myController,
               onSubmitted: (value) {
                 myChangeNotifier.addTask(myController.text);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MainView()));
+                Navigator.pop(context);
               },
             )));
   }

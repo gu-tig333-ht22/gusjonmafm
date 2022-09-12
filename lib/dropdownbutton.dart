@@ -20,7 +20,6 @@ class DropdownState extends State<Dropdown> {
               ),
               style: const TextStyle(color: Colors.black),
               onChanged: (String? valueDropdown) {
-                debugPrint(valueDropdown);
                 //debugPrint(myChangeNotifier.getListTasks);
                 myChangeNotifier.setDropdownValue = valueDropdown!;
               },
