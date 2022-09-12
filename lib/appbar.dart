@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'dropdownbutton';
+import 'dropdownbutton.dart';
 
 const int figmaGrey = 0xffC4C4C4;
 
@@ -15,7 +14,7 @@ PreferredSize appBarMain() {
         style: TextStyle(fontSize: 26, color: Colors.black),
       ),
       backgroundColor: Color(figmaGrey),
-      actions: [DropdownButtonExample()],
+      actions: [Dropdown()],
     ),
   );
 }

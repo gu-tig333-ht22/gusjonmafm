@@ -1,30 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:math';
 
 import 'appbar.dart';
 import 'secondview.dart';
+import 'notifier.dart';
 
 const int figmaGrey = 0xffC4C4C4;
-List<Task> listTasks = [
-  Task(label: 'Write a book'),
-  Task(label: 'Do homework'),
-  Task(label: 'Do homework'),
-  Task(label: 'Do homework'),
-  Task(label: 'Write a book'),
-  Task(label: 'Do homework'),
-  Task(label: 'Do homework'),
-  Task(label: 'Do homework'),
-  Task(label: 'Write a book'),
-  Task(label: 'Do homework'),
-  Task(label: 'Do homework'),
-  Task(label: 'Do homework'),
-  Task(label: 'Write a book'),
-  Task(label: 'Do homework'),
-  Task(label: 'Do homework'),
-  Task(label: 'Do homework'),
-  Task(label: 'Do homework')
-];
 
 void main() {
   runApp(MyApp());
@@ -33,44 +14,15 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: MainView(),
-        theme: ThemeData(fontFamily: 'RobotoRegular'));
-  }
-}
-
-class Task {
-  late String _label;
-  late int? _index;
-  bool _done = false;
-
-  Task({required String label}) {
-    this._label = label;
-  }
-
-  get label {
-    return _label;
-  }
-
-  get done {
-    return _done;
-  }
-
-  get index {
-    return _index;
-  }
-
-  set label(label) {
-    this._label = label;
-  }
-
-  set done(done) {
-    this._done = done;
-  }
-
-  set index(index) {
-    this._index = index;
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => MyChangeNotifier())
+      ],
+      child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: MainView(),
+          theme: ThemeData(fontFamily: 'RobotoRegular')),
+    );
   }
 }
 
@@ -106,47 +58,36 @@ Widget checkList(context) {
   ]);
 }
 
-class RowTask extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return RowTaskState();
-  }
+Widget RowTask() {
+  return Consumer<MyChangeNotifier>(
+      builder: (context, myChangeNotifier, child) => ListView.builder(
+          itemBuilder: (context, index) =>
+              listTile(index, context, myChangeNotifier.getListTasks),
+          itemCount: myChangeNotifier.getListTasks.length));
 }
 
-class RowTaskState extends State<RowTask> {
-  Widget build(BuildContext context) {
-    return ListView.builder(
-        itemBuilder: (context, index) => listTile(index),
-        itemCount: listTasks.length);
-  }
+Widget listTile(index, context, List<Task> list) {
+  return Consumer<MyChangeNotifier>(
+      builder: (context, myChangeNotifier, child) => ListTile(
+          shape: Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
+          leading: Checkbox(
+              value: list[index].getDone,
+              onChanged: (bool? valueDone) {
+                myChangeNotifier.taskDone(list[index].getId, valueDone);
+              }),
+          title: text(list[index].getLabel, list[index].getDone),
+          trailing: IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              myChangeNotifier.deleteListTask = list[index].getId;
+            },
+          )));
+}
 
-  Widget listTile(index) {
-    return ListTile(
-        shape: Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
-        leading: Checkbox(
-            value: listTasks[index].done,
-            onChanged: (bool? value) {
-              setState(() {
-                listTasks[index].done = value;
-              });
-            }),
-        title: text(index),
-        trailing: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            setState(() {
-              listTasks.removeAt(index);
-            });
-          },
-        ));
-  }
-
-  Widget text(index) {
-    if (listTasks[index].done == true) {
-      return Text(listTasks[index].label,
-          style: TextStyle(decoration: TextDecoration.lineThrough));
-    } else {
-      return Text(listTasks[index].label);
-    }
+Widget text(text, value) {
+  if (value == true) {
+    return Text(text, style: TextStyle(decoration: TextDecoration.lineThrough));
+  } else {
+    return Text(text);
   }
 }
