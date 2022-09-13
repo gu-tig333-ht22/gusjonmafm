@@ -42,7 +42,7 @@ class MainView extends StatelessWidget {
       child: Consumer<MyChangeNotifier>(
           builder: (context, myChangeNotifier, child) => ListView.builder(
               itemBuilder: (context, index) =>
-                  listTile(myChangeNotifier.getListTasks[index]),
+                  listTile(myChangeNotifier.getListTasks[index], context),
               itemCount: myChangeNotifier.getListTasks.length)),
     );
   }
@@ -69,34 +69,34 @@ class MainView extends StatelessWidget {
         ));
   }
 
-  Widget listTile(Task task) {
+  Widget listTile(Task task, context) {
     return ListTile(
         shape: Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
-        leading: checkBox(task),
-        title: textListTile(task),
-        trailing: iconButton(task));
+        leading: checkBox(task, context),
+        title: textListTile(task, context),
+        trailing: deleteButton(task, context));
   }
 
-  Widget checkBox(Task task) {
-    return Consumer<MyChangeNotifier>(
-        builder: (context, myChangeNotifier, child) => Checkbox(
-            value: task.getDone,
-            onChanged: (bool? valueDone) {
-              myChangeNotifier.taskDone(task.getId, valueDone);
-            }));
+  Widget checkBox(Task task, context) {
+    return Checkbox(
+        value: task.getDone,
+        onChanged: (bool? valueDone) {
+          Provider.of<MyChangeNotifier>(context, listen: false)
+              .taskDone(task.getId, valueDone);
+        });
   }
 
-  Widget iconButton(Task task) {
-    return Consumer<MyChangeNotifier>(
-        builder: (context, myChangeNotifier, child) => IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                myChangeNotifier.deleteListTask = task.getId;
-              },
-            ));
+  Widget deleteButton(Task task, context) {
+    return IconButton(
+      icon: Icon(Icons.close),
+      onPressed: () {
+        Provider.of<MyChangeNotifier>(context, listen: false).deleteListTask =
+            task.getId;
+      },
+    );
   }
 
-  Widget textListTile(Task task) {
+  Widget textListTile(Task task, context) {
     if (task.getDone == true) {
       return Text(task.getLabel,
           style: TextStyle(decoration: TextDecoration.lineThrough));
