@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'appbar.dart';
-import 'secondview.dart';
+import 'addview.dart';
+import 'editview.dart';
 import 'notifier.dart';
 
 const int figmaGrey = 0xffC4C4C4;
@@ -16,7 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => MyChangeNotifier())
+        ChangeNotifierProvider(create: (context) => MyChangeNotifier()),
+        ChangeNotifierProvider(create: (context) => MyErrorNotifier())
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -58,7 +60,7 @@ class MainView extends StatelessWidget {
             child: FloatingActionButton(
                 onPressed: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SecondView()));
+                      MaterialPageRoute(builder: (context) => AddView()));
                 },
                 backgroundColor: Color(figmaGrey),
                 child: Icon(
@@ -71,10 +73,17 @@ class MainView extends StatelessWidget {
 
   Widget listTile(Task task, context) {
     return ListTile(
-        shape: Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
-        leading: checkBox(task, context),
-        title: textListTile(task, context),
-        trailing: deleteButton(task, context));
+      shape: Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
+      leading: checkBox(task, context),
+      title: textListTile(task, context),
+      trailing: Wrap(
+        spacing: 10,
+        children: [
+          editButtonMainView(task, context),
+          deleteButton(task, context)
+        ],
+      ),
+    );
   }
 
   Widget checkBox(Task task, context) {
@@ -86,6 +95,28 @@ class MainView extends StatelessWidget {
         });
   }
 
+  Widget textListTile(Task task, context) {
+    if (task.getDone == true) {
+      return Text(task.getLabel,
+          style: TextStyle(decoration: TextDecoration.lineThrough));
+    } else {
+      return Text(task.getLabel);
+    }
+  }
+
+  Widget editButtonMainView(Task task, context) {
+    return IconButton(
+        onPressed: () async {
+          var newLabel = await Navigator.push(context,
+              MaterialPageRoute(builder: (context) => EditView(task.getLabel)));
+          if (newLabel != null) {
+            Provider.of<MyChangeNotifier>(context, listen: false)
+                .editTask(newLabel, task.getId);
+          }
+        },
+        icon: Icon(Icons.edit));
+  }
+
   Widget deleteButton(Task task, context) {
     return IconButton(
       icon: Icon(Icons.close),
@@ -94,14 +125,5 @@ class MainView extends StatelessWidget {
             task.getId;
       },
     );
-  }
-
-  Widget textListTile(Task task, context) {
-    if (task.getDone == true) {
-      return Text(task.getLabel,
-          style: TextStyle(decoration: TextDecoration.lineThrough));
-    } else {
-      return Text(task.getLabel);
-    }
   }
 }

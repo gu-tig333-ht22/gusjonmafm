@@ -11,8 +11,8 @@ PreferredSize appBarMain(context) {
     child: AppBar(
       centerTitle: true,
       title: const Text(
-        'TIG333 TODO',
-        style: TextStyle(fontSize: 26, color: Colors.black),
+        'TIG333 TODO-List',
+        style: TextStyle(fontSize: 20, color: Colors.black),
       ),
       backgroundColor: Color(figmaGrey),
       actions: [dropDownButton(context)],
@@ -26,6 +26,7 @@ Widget dropDownButton(context) {
   return DropdownButton(
       value: Provider.of<MyChangeNotifier>(context, listen: false)
           .getDropdownValue,
+      icon: Icon(Icons.filter_alt),
       items: list.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -38,14 +39,14 @@ Widget dropDownButton(context) {
       });
 }
 
-PreferredSize appBarSecond() {
+PreferredSize appBar(String textTitle) {
   return PreferredSize(
     preferredSize: Size.fromHeight(48),
     child: AppBar(
       centerTitle: true,
-      title: const Text(
-        'TIG333 TODO',
-        style: TextStyle(fontSize: 26, color: Colors.black),
+      title: Text(
+        textTitle,
+        style: TextStyle(fontSize: 20, color: Colors.black),
       ),
       backgroundColor: Color(figmaGrey),
     ),

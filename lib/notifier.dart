@@ -13,7 +13,7 @@ class Task {
   get getDone => _done;
   get getId => _id;
 
-  set setLabel(String label) {
+  set _setLabel(String label) {
     this._label = label;
   }
 
@@ -21,7 +21,7 @@ class Task {
     this._done = done;
   }
 
-  set setId(int id) {
+  set _setId(int id) {
     this._id = id;
   }
 }
@@ -79,6 +79,26 @@ class MyChangeNotifier extends ChangeNotifier {
     }
     _listTasks.add(Task(label, id));
     globalId += 1;
+    notifyListeners();
+  }
+
+  void editTask(String label, int id) {
+    _listTasks.firstWhere((task) => task._id == id)._setLabel = label;
+    notifyListeners();
+  }
+}
+
+class MyErrorNotifier extends ChangeNotifier {
+  String _errorMessage = "";
+
+  get getErrorMessage => _errorMessage;
+
+  void setErrorMessage(bool bool) {
+    if (bool == true) {
+      _errorMessage = 'Must contain at least one character';
+    } else {
+      _errorMessage = '';
+    }
     notifyListeners();
   }
 }
