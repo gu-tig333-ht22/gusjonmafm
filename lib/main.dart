@@ -30,7 +30,7 @@ class MainView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: appBarMain(),
+        appBar: appBarMain(context),
         body: Column(children: [
           rowTasks(),
           addButtonFirstView(context),
@@ -82,7 +82,7 @@ class MainView extends StatelessWidget {
         value: task.getDone,
         onChanged: (bool? valueDone) {
           Provider.of<MyChangeNotifier>(context, listen: false)
-              .taskDone(task.getId, valueDone);
+              .changeTaskDone(task.getId, valueDone);
         });
   }
 
@@ -90,7 +90,7 @@ class MainView extends StatelessWidget {
     return IconButton(
       icon: Icon(Icons.close),
       onPressed: () {
-        Provider.of<MyChangeNotifier>(context, listen: false).deleteListTask =
+        Provider.of<MyChangeNotifier>(context, listen: false).deleteTask =
             task.getId;
       },
     );

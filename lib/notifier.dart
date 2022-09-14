@@ -17,7 +17,7 @@ class Task {
     this._label = label;
   }
 
-  set setDone(bool? done) {
+  set _setDone(bool? done) {
     this._done = done;
   }
 
@@ -63,22 +63,17 @@ class MyChangeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  set deleteListTask(int id) {
+  set deleteTask(int id) {
     _listTasks.remove(_listTasks.firstWhere((task) => task._id == id));
     notifyListeners();
   }
 
-  set addListTasks(Task task) {
-    _listTasks.add(task);
+  void changeTaskDone(int id, bool? valueDone) {
+    _listTasks.firstWhere((task) => task._id == id)._setDone = valueDone;
     notifyListeners();
   }
 
-  taskDone(int id, bool? valueDone) {
-    _listTasks.firstWhere((task) => task._id == id).setDone = valueDone;
-    notifyListeners();
-  }
-
-  addTask(String label, {int? id}) {
+  void addTask(String label, {int? id}) {
     if (id == null) {
       id = globalId;
     }
