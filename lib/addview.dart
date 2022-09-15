@@ -10,46 +10,64 @@ class AddView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar('Add TODO'),
-      body: Center(
-        child: Column(
-          children: [
-            Container(height: 40),
-            textField(context),
-            Container(height: 40),
-            addButtonAddView(context)
-          ],
-        ),
+      appBar: appBarAddEdit('Add TODO'),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/Backgroundimage.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Container(
+              decoration: BoxDecoration(color: Color.fromARGB(220, 0, 28, 16))),
+          Center(
+            child: Column(
+              children: [
+                Container(height: 40),
+                textField(context),
+                Container(height: 40),
+                addButtonAddView(context)
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
 
   Widget textField(context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 351 / 411,
+    return Padding(
+      padding: const EdgeInsets.all(10),
       child: Column(
         children: [
-          Container(
-              height: 50,
-              // Satt boxen till samma proportioner som i figma
-              decoration: BoxDecoration(
-                  border: Border.all(width: 1),
-                  borderRadius: const BorderRadius.all(Radius.circular(10))),
-              child: TextField(
-                decoration:
-                    const InputDecoration(hintText: 'Type in your todo'),
-                controller: _myController,
-                onSubmitted: (value) {
-                  validateInput(_myController.text, context);
-                },
-              )),
+          TextField(
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                filled: true,
+                fillColor: Color.fromARGB(100, 255, 255, 255),
+                hintText: 'Type in your todo'),
+            controller: _myController,
+            onSubmitted: (value) {
+              validateInput(_myController.text, context);
+            },
+          ),
           Consumer<MyErrorNotifier>(
               builder: (context, myChangeNotifier, child) => Align(
                   alignment: Alignment.bottomLeft,
-                  child: Text(
-                      Provider.of<MyErrorNotifier>(context, listen: false)
-                          .getErrorMessage,
-                      style: const TextStyle(color: Colors.red))))
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                        Provider.of<MyErrorNotifier>(context, listen: false)
+                            .getErrorMessage,
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 182, 87, 81))),
+                  )))
         ],
       ),
     );
@@ -67,12 +85,16 @@ class AddView extends StatelessWidget {
   }
 
   Widget addButtonAddView(context) {
-    return TextButton.icon(
+    return ElevatedButton.icon(
       onPressed: () {
         validateInput(_myController.text, context);
       },
-      style: TextButton.styleFrom(primary: Colors.black),
-      icon: Icon(Icons.add),
+      style:
+          ElevatedButton.styleFrom(primary: Color.fromARGB(100, 255, 255, 255)),
+      icon: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: Icon(Icons.add_circle_sharp, size: 30),
+      ),
       label: const Text('Add', style: TextStyle(fontSize: 16)),
     );
   }

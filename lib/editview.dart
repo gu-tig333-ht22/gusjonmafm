@@ -12,57 +12,83 @@ class EditView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar('Edit TODO'),
-      body: Center(
-        child: Column(
+        appBar: appBarAddEdit('Edit TODO'),
+        body: Stack(
           children: [
-            Container(height: 40),
-            textFieldContainer(context),
-            Container(height: 40),
-            editButtonEditView(context)
+            Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/Backgroundimage.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Container(
+                decoration:
+                    BoxDecoration(color: Color.fromARGB(220, 0, 28, 16))),
+            Center(
+              child: Column(
+                children: [
+                  Container(height: 40),
+                  textField(context),
+                  Container(height: 40),
+                  editButtonEditView(context)
+                ],
+              ),
+            ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget editButtonEditView(context) {
-    return TextButton.icon(
+    return ElevatedButton.icon(
       // <-- TextButton
       onPressed: () {
         validateInput(_myController.text, context);
       },
-      style: TextButton.styleFrom(primary: Colors.black),
-      icon: const Icon(
-        Icons.save,
-        size: 25.0,
+      style:
+          ElevatedButton.styleFrom(primary: Color.fromARGB(100, 255, 255, 255)),
+      icon: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: const Icon(
+          Icons.save,
+          size: 30.0,
+        ),
       ),
       label: const Text('Save', style: TextStyle(fontSize: 16)),
     );
   }
 
-  Widget textFieldContainer(context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 351 / 411,
+  Widget textField(context) {
+    return Padding(
+      padding: const EdgeInsets.all(10),
       child: Column(
-        children: [textField(context), errorMessage()],
+        children: [
+          TextField(
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              filled: true,
+              fillColor: Color.fromARGB(100, 255, 255, 255),
+            ),
+            controller: _myController,
+            onSubmitted: (value) {
+              validateInput(_myController.text, context);
+            },
+          ),
+          Consumer<MyErrorNotifier>(
+              builder: (context, myChangeNotifier, child) => Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                      Provider.of<MyErrorNotifier>(context, listen: false)
+                          .getErrorMessage,
+                      style: const TextStyle(
+                          color: Color.fromARGB(255, 182, 87, 81)))))
+        ],
       ),
     );
-  }
-
-  Widget textField(context) {
-    return Container(
-        height: 50,
-        // Satt boxen till samma proportioner som i figma
-        decoration: BoxDecoration(
-            border: Border.all(width: 1),
-            borderRadius: const BorderRadius.all(Radius.circular(10))),
-        child: TextField(
-          controller: _myController,
-          onSubmitted: (value) {
-            validateInput(_myController.text, context);
-          },
-        ));
   }
 
   Widget errorMessage() {

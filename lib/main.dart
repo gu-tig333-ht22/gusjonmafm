@@ -6,8 +6,6 @@ import 'addview.dart';
 import 'editview.dart';
 import 'notifier.dart';
 
-const int figmaGrey = 0xffC4C4C4;
-
 void main() {
   runApp(MyApp());
 }
@@ -33,10 +31,27 @@ class MainView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: appBarMain(context),
-        body: Column(children: [
-          rowTasks(),
-          addButtonFirstView(context),
-        ]));
+        body: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/Backgroundimage.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Container(
+                decoration:
+                    BoxDecoration(color: Color.fromARGB(220, 0, 28, 16))),
+            Material(
+                color: Color.fromRGBO(0, 0, 0, 0),
+                child: Column(children: [
+                  rowTasks(),
+                  Container(child: addButtonFirstView(context))
+                ]))
+          ],
+        ));
   }
 
   Widget rowTasks() {
@@ -55,8 +70,8 @@ class MainView extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(15),
           child: SizedBox(
-            width: 56,
-            height: 56,
+            width: 50,
+            height: 50,
             child: FloatingActionButton(
                 onPressed: () {
                   Provider.of<MyErrorNotifier>(context, listen: false)
@@ -64,33 +79,38 @@ class MainView extends StatelessWidget {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => AddView()));
                 },
-                backgroundColor: Color(figmaGrey),
+                backgroundColor: Color.fromARGB(100, 255, 255, 255),
                 child: const Icon(
                   Icons.add,
-                  size: 56,
+                  size: 30,
                 )),
           ),
         ));
   }
 
   Widget listTile(Task task, context) {
-    return ListTile(
-      shape:
-          const Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
-      leading: checkBox(task, context),
-      title: textListTile(task, context),
-      trailing: Wrap(
-        spacing: 10,
-        children: [
-          editButtonMainView(task, context),
-          deleteButton(task, context)
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(left: 5, right: 5, top: 4),
+      child: ListTile(
+        tileColor: Color.fromARGB(80, 255, 255, 255),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        leading: checkBox(task, context),
+        title: textListTile(task, context),
+        trailing: Wrap(
+          spacing: 10,
+          children: [
+            editButtonMainView(task, context),
+            deleteButton(task, context)
+          ],
+        ),
       ),
     );
   }
 
   Widget checkBox(Task task, context) {
     return Checkbox(
+        activeColor: Color.fromARGB(100, 0, 28, 18),
         value: task.getDone,
         onChanged: (bool? valueDone) {
           Provider.of<MyChangeNotifier>(context, listen: false)
@@ -101,9 +121,10 @@ class MainView extends StatelessWidget {
   Widget textListTile(Task task, context) {
     if (task.getDone == true) {
       return Text(task.getLabel,
-          style: const TextStyle(decoration: TextDecoration.lineThrough));
+          style: const TextStyle(
+              decoration: TextDecoration.lineThrough, color: Colors.white));
     } else {
-      return Text(task.getLabel);
+      return Text(task.getLabel, style: const TextStyle(color: Colors.white));
     }
   }
 
@@ -119,12 +140,12 @@ class MainView extends StatelessWidget {
                 .editTask(label: newLabel, id: task.getId, done: task.getDone);
           }
         },
-        icon: Icon(Icons.edit));
+        icon: Icon(Icons.edit_outlined));
   }
 
   Widget deleteButton(Task task, context) {
     return IconButton(
-      icon: const Icon(Icons.close),
+      icon: const Icon(Icons.delete_outlined),
       onPressed: () {
         Provider.of<MyChangeNotifier>(context, listen: false)
             .deleteTask(task.getId);
