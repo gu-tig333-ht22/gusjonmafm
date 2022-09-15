@@ -7,14 +7,14 @@ const int figmaGrey = 0xffC4C4C4;
 
 PreferredSize appBarMain(context) {
   return PreferredSize(
-    preferredSize: Size.fromHeight(48),
+    preferredSize: const Size.fromHeight(48),
     child: AppBar(
       centerTitle: true,
       title: const Text(
         'TIG333 TODO-List',
         style: TextStyle(fontSize: 20, color: Colors.black),
       ),
-      backgroundColor: Color(figmaGrey),
+      backgroundColor: const Color(figmaGrey),
       actions: [dropDownButton(context)],
     ),
   );
@@ -26,7 +26,7 @@ Widget dropDownButton(context) {
   return DropdownButton(
       value: Provider.of<MyChangeNotifier>(context, listen: false)
           .getDropdownValue,
-      icon: Icon(Icons.filter_alt),
+      icon: const Icon(Icons.filter_alt),
       items: list.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -41,14 +41,14 @@ Widget dropDownButton(context) {
 
 PreferredSize appBar(String textTitle) {
   return PreferredSize(
-    preferredSize: Size.fromHeight(48),
+    preferredSize: const Size.fromHeight(48),
     child: AppBar(
       centerTitle: true,
       title: Text(
         textTitle,
-        style: TextStyle(fontSize: 20, color: Colors.black),
+        style: const TextStyle(fontSize: 20, color: Colors.black),
       ),
-      backgroundColor: Color(figmaGrey),
+      backgroundColor: const Color(figmaGrey),
     ),
   );
 }

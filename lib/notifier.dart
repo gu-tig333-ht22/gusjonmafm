@@ -1,60 +1,60 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 
 class Task {
-  late String _label;
-  late int _id;
-  bool? _done = false;
+  final String _label;
+  final String _id;
+  final bool? _done;
 
-  Task(String label, int id) {
-    this._label = label;
-    this._id = id;
-  }
+  Task(this._label, this._id, this._done);
+
   get getLabel => _label;
-  get getDone => _done;
   get getId => _id;
-
-  set _setLabel(String label) {
-    this._label = label;
-  }
-
-  set _setDone(bool? done) {
-    this._done = done;
-  }
-
-  set _setId(int id) {
-    this._id = id;
-  }
+  get getDone => _done;
 }
 
 class MyChangeNotifier extends ChangeNotifier {
   final List<String> _dropdownValueList = ['All', 'Done', 'Undone'];
   late String _dropdownValue = _dropdownValueList.first;
+  late List<Task> filteredList;
 
-  int globalId = 6;
+  String homepage = "https://todoapp-api.apps.k8s.gu.se/todos";
+  String key = "?key=ec7ee6eb-8436-4e20-8375-0434bfdcd0ba";
+  final List<Task> _listTasks = [];
 
-  late List<Task> _listTasks = [
-    Task('Write a book', 1),
-    Task('Take a nap', 2),
-    Task('Eat', 3),
-    Task('Do homework', 4),
-    Task('Eat again', 5)
-  ];
+  MyChangeNotifier() {
+    getInitTaskList();
+  }
 
   List<String> get getDropdownValueList => _dropdownValueList;
   String get getDropdownValue => _dropdownValue;
 
-  late List<Task> newList = [];
+  void getInitTaskList() async {
+    http.Response answer = await http.get(Uri.parse('$homepage$key'));
+    var listJsonObject = jsonDecode(answer.body);
+    updateListTasks(listJsonObject);
+  }
+
+  void updateListTasks(listJsonObject) {
+    _listTasks.clear();
+    listJsonObject.forEach((object) {
+      _listTasks.add(Task(object["title"], object["id"], object["done"]));
+    });
+    notifyListeners();
+  }
 
   get getListTasks {
     if (_dropdownValue == 'All') {
-      newList = _listTasks;
-      return newList;
+      filteredList = _listTasks;
+      return filteredList;
     } else if (_dropdownValue == 'Done') {
-      newList = _listTasks.where((task) => task._done == true).toList();
-      return newList;
+      filteredList = _listTasks.where((task) => task._done == true).toList();
+      return filteredList;
     } else if (_dropdownValue == 'Undone') {
-      newList = _listTasks.where((task) => task._done == false).toList();
-      return newList;
+      filteredList = _listTasks.where((task) => task._done == false).toList();
+      return filteredList;
     }
   }
 
@@ -63,28 +63,27 @@ class MyChangeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  set deleteTask(int id) {
-    _listTasks.remove(_listTasks.firstWhere((task) => task._id == id));
-    notifyListeners();
+  void deleteTask(String id) async {
+    http.Response answer = await http.delete(Uri.parse('$homepage/$id$key'));
+    var listJsonObject = jsonDecode(answer.body);
+    updateListTasks(listJsonObject);
   }
 
-  void changeTaskDone(int id, bool? valueDone) {
-    _listTasks.firstWhere((task) => task._id == id)._setDone = valueDone;
-    notifyListeners();
+  void addTask(String label) async {
+    http.Response answer = await http.post(Uri.parse('$homepage$key'),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({"title": label}));
+    var listJsonObject = jsonDecode(answer.body);
+    updateListTasks(listJsonObject);
   }
 
-  void addTask(String label, {int? id}) {
-    if (id == null) {
-      id = globalId;
-    }
-    _listTasks.add(Task(label, id));
-    globalId += 1;
-    notifyListeners();
-  }
-
-  void editTask(String label, int id) {
-    _listTasks.firstWhere((task) => task._id == id)._setLabel = label;
-    notifyListeners();
+  void editTask(
+      {required String label, required String id, required bool? done}) async {
+    http.Response answer = await http.put(Uri.parse('$homepage/$id$key'),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({"title": label, "done": done}));
+    var listJsonObject = jsonDecode(answer.body);
+    updateListTasks(listJsonObject);
   }
 }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart';
 
 import 'appbar.dart';
 import 'addview.dart';
@@ -60,11 +59,13 @@ class MainView extends StatelessWidget {
             height: 56,
             child: FloatingActionButton(
                 onPressed: () {
+                  Provider.of<MyErrorNotifier>(context, listen: false)
+                      .setErrorMessage(false);
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => AddView()));
                 },
                 backgroundColor: Color(figmaGrey),
-                child: Icon(
+                child: const Icon(
                   Icons.add,
                   size: 56,
                 )),
@@ -74,7 +75,8 @@ class MainView extends StatelessWidget {
 
   Widget listTile(Task task, context) {
     return ListTile(
-      shape: Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
+      shape:
+          const Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
       leading: checkBox(task, context),
       title: textListTile(task, context),
       trailing: Wrap(
@@ -92,14 +94,14 @@ class MainView extends StatelessWidget {
         value: task.getDone,
         onChanged: (bool? valueDone) {
           Provider.of<MyChangeNotifier>(context, listen: false)
-              .changeTaskDone(task.getId, valueDone);
+              .editTask(label: task.getLabel, id: task.getId, done: valueDone);
         });
   }
 
   Widget textListTile(Task task, context) {
     if (task.getDone == true) {
       return Text(task.getLabel,
-          style: TextStyle(decoration: TextDecoration.lineThrough));
+          style: const TextStyle(decoration: TextDecoration.lineThrough));
     } else {
       return Text(task.getLabel);
     }
@@ -108,11 +110,13 @@ class MainView extends StatelessWidget {
   Widget editButtonMainView(Task task, context) {
     return IconButton(
         onPressed: () async {
+          Provider.of<MyErrorNotifier>(context, listen: false)
+              .setErrorMessage(false);
           var newLabel = await Navigator.push(context,
               MaterialPageRoute(builder: (context) => EditView(task.getLabel)));
           if (newLabel != null) {
             Provider.of<MyChangeNotifier>(context, listen: false)
-                .editTask(newLabel, task.getId);
+                .editTask(label: newLabel, id: task.getId, done: task.getDone);
           }
         },
         icon: Icon(Icons.edit));
@@ -120,10 +124,10 @@ class MainView extends StatelessWidget {
 
   Widget deleteButton(Task task, context) {
     return IconButton(
-      icon: Icon(Icons.close),
+      icon: const Icon(Icons.close),
       onPressed: () {
-        Provider.of<MyChangeNotifier>(context, listen: false).deleteTask =
-            task.getId;
+        Provider.of<MyChangeNotifier>(context, listen: false)
+            .deleteTask(task.getId);
       },
     );
   }

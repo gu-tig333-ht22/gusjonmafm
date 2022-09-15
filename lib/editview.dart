@@ -5,7 +5,7 @@ import 'appbar.dart';
 import 'notifier.dart';
 
 class EditView extends StatelessWidget {
-  TextEditingController _myController = TextEditingController();
+  final TextEditingController _myController = TextEditingController();
   EditView(String label) {
     _myController.text = label;
   }
@@ -33,11 +33,11 @@ class EditView extends StatelessWidget {
         validateInput(_myController.text, context);
       },
       style: TextButton.styleFrom(primary: Colors.black),
-      icon: Icon(
+      icon: const Icon(
         Icons.save,
         size: 25.0,
       ),
-      label: Text('Save', style: TextStyle(fontSize: 16)),
+      label: const Text('Save', style: TextStyle(fontSize: 16)),
     );
   }
 
@@ -56,7 +56,7 @@ class EditView extends StatelessWidget {
         // Satt boxen till samma proportioner som i figma
         decoration: BoxDecoration(
             border: Border.all(width: 1),
-            borderRadius: BorderRadius.all(Radius.circular(10))),
+            borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: TextField(
           controller: _myController,
           onSubmitted: (value) {
@@ -72,16 +72,14 @@ class EditView extends StatelessWidget {
             child: Text(
                 Provider.of<MyErrorNotifier>(context, listen: false)
                     .getErrorMessage,
-                style: TextStyle(color: Colors.red))));
+                style: const TextStyle(color: Colors.red))));
   }
 
-  validateInput(String input, context) {
+  void validateInput(String input, context) {
     if (input == '') {
       Provider.of<MyErrorNotifier>(context, listen: false)
           .setErrorMessage(true);
     } else {
-      Provider.of<MyErrorNotifier>(context, listen: false)
-          .setErrorMessage(false);
       Navigator.pop(context, input);
     }
   }
