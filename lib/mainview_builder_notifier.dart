@@ -15,26 +15,32 @@ class Task {
   get getDone => _done;
 }
 
-class MyChangeNotifier extends ChangeNotifier {
-  final List<String> _dropdownValueList = ['All', 'Done', 'Undone'];
-  late String _dropdownValue = _dropdownValueList.first;
-  late List<Task> filteredList;
+class MainviewNotifier extends ChangeNotifier {
+  late String _dropdownValue = 'All';
+  final List<Task> _listTasks = [];
 
   String homepage = "https://todoapp-api.apps.k8s.gu.se/todos";
   String key = "?key=ec7ee6eb-8436-4e20-8375-0434bfdcd0ba";
-  final List<Task> _listTasks = [];
 
-  MyChangeNotifier() {
+  MainviewNotifier() {
     getInitTaskList();
   }
 
-  List<String> get getDropdownValueList => _dropdownValueList;
   String get getDropdownValue => _dropdownValue;
 
-  void getInitTaskList() async {
-    http.Response answer = await http.get(Uri.parse('$homepage$key'));
-    var listJsonObject = jsonDecode(answer.body);
-    updateListTasks(listJsonObject);
+  get getListTasks {
+    if (_dropdownValue == 'All') {
+      return _listTasks;
+    } else if (_dropdownValue == 'Done') {
+      return _listTasks.where((task) => task._done == true).toList();
+    } else if (_dropdownValue == 'Undone') {
+      return _listTasks.where((task) => task._done == false).toList();
+    }
+  }
+
+  set setDropdownValue(String valueDropdown) {
+    _dropdownValue = valueDropdown;
+    notifyListeners();
   }
 
   void updateListTasks(listJsonObject) {
@@ -45,22 +51,10 @@ class MyChangeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  get getListTasks {
-    if (_dropdownValue == 'All') {
-      filteredList = _listTasks;
-      return filteredList;
-    } else if (_dropdownValue == 'Done') {
-      filteredList = _listTasks.where((task) => task._done == true).toList();
-      return filteredList;
-    } else if (_dropdownValue == 'Undone') {
-      filteredList = _listTasks.where((task) => task._done == false).toList();
-      return filteredList;
-    }
-  }
-
-  set setDropdownValue(String valueDropdown) {
-    _dropdownValue = valueDropdown;
-    notifyListeners();
+  void getInitTaskList() async {
+    http.Response answer = await http.get(Uri.parse('$homepage$key'));
+    var listJsonObject = jsonDecode(answer.body);
+    updateListTasks(listJsonObject);
   }
 
   void deleteTask(String id) async {
@@ -84,20 +78,5 @@ class MyChangeNotifier extends ChangeNotifier {
         body: json.encode({"title": label, "done": done}));
     var listJsonObject = jsonDecode(answer.body);
     updateListTasks(listJsonObject);
-  }
-}
-
-class MyErrorNotifier extends ChangeNotifier {
-  String _errorMessage = "";
-
-  get getErrorMessage => _errorMessage;
-
-  void setErrorMessage(bool bool) {
-    if (bool == true) {
-      _errorMessage = 'Must contain at least one character';
-    } else {
-      _errorMessage = '';
-    }
-    notifyListeners();
   }
 }

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'appbar.dart';
-import 'notifier.dart';
+import 'themes.dart';
+import 'error_notifier.dart';
 
 class EditView extends StatelessWidget {
   final TextEditingController _myController = TextEditingController();
@@ -15,17 +16,8 @@ class EditView extends StatelessWidget {
         appBar: appBarAddEdit('Edit TODO'),
         body: Stack(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/Backgroundimage.jpg'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            Container(
-                decoration:
-                    BoxDecoration(color: Color.fromARGB(220, 0, 28, 16))),
+            backgroundImage(),
+            filterBackgroundImage(),
             Center(
               child: Column(
                 children: [
@@ -42,19 +34,19 @@ class EditView extends StatelessWidget {
 
   Widget editButtonEditView(context) {
     return ElevatedButton.icon(
-      // <-- TextButton
       onPressed: () {
-        validateInput(_myController.text, context);
+        if (validateInput(_myController.text, context)) {
+          Navigator.pop(context, _myController.text);
+        }
       },
-      style:
-          ElevatedButton.styleFrom(primary: Color.fromARGB(100, 255, 255, 255)),
-      icon: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: const Icon(
-          Icons.save,
-          size: 30.0,
-        ),
-      ),
+      style: ElevatedButton.styleFrom(primary: appbarColor),
+      icon: const Padding(
+          padding: EdgeInsets.all(5.0),
+          child: Icon(
+            Icons.save,
+            size: 20,
+            color: Colors.white,
+          )),
       label: const Text('Save', style: TextStyle(fontSize: 16)),
     );
   }
@@ -65,48 +57,27 @@ class EditView extends StatelessWidget {
       child: Column(
         children: [
           TextField(
-            style: TextStyle(color: Colors.white),
+            cursorColor: iconColor,
+            style: TextStyle(color: textColor),
             decoration: InputDecoration(
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: borderRadius,
               ),
               filled: true,
-              fillColor: Color.fromARGB(100, 255, 255, 255),
+              fillColor: boxColor,
             ),
             controller: _myController,
             onSubmitted: (value) {
-              validateInput(_myController.text, context);
+              if (validateInput(_myController.text, context)) {
+                Navigator.pop(context, _myController.text);
+              }
             },
           ),
           Consumer<MyErrorNotifier>(
-              builder: (context, myChangeNotifier, child) => Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                      Provider.of<MyErrorNotifier>(context, listen: false)
-                          .getErrorMessage,
-                      style: const TextStyle(
-                          color: Color.fromARGB(255, 182, 87, 81)))))
+              builder: (context, myChangeNotifier, child) =>
+                  errorMessage(context))
         ],
       ),
     );
-  }
-
-  Widget errorMessage() {
-    return Consumer<MyErrorNotifier>(
-        builder: (context, myChangeNotifier, child) => Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-                Provider.of<MyErrorNotifier>(context, listen: false)
-                    .getErrorMessage,
-                style: const TextStyle(color: Colors.red))));
-  }
-
-  void validateInput(String input, context) {
-    if (input == '') {
-      Provider.of<MyErrorNotifier>(context, listen: false)
-          .setErrorMessage(true);
-    } else {
-      Navigator.pop(context, input);
-    }
   }
 }

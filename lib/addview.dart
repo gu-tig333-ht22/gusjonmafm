@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/mainview_builder_notifier.dart';
+import 'package:flutter_application_1/themes.dart';
 import 'package:provider/provider.dart';
 
 import 'appbar.dart';
-import 'notifier.dart';
+import 'themes.dart';
+import 'error_notifier.dart';
 
 class AddView extends StatelessWidget {
   final TextEditingController _myController = TextEditingController();
@@ -13,16 +16,8 @@ class AddView extends StatelessWidget {
       appBar: appBarAddEdit('Add TODO'),
       body: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/Backgroundimage.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Container(
-              decoration: BoxDecoration(color: Color.fromARGB(220, 0, 28, 16))),
+          backgroundImage(),
+          filterBackgroundImage(),
           Center(
             child: Column(
               children: [
@@ -44,57 +39,49 @@ class AddView extends StatelessWidget {
       child: Column(
         children: [
           TextField(
-            style: TextStyle(color: Colors.white),
+            cursorColor: iconColor,
+            style: TextStyle(color: textColor),
             decoration: InputDecoration(
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: borderRadius,
                 ),
                 filled: true,
-                fillColor: Color.fromARGB(100, 255, 255, 255),
+                fillColor: boxColor,
                 hintText: 'Type in your todo'),
             controller: _myController,
             onSubmitted: (value) {
-              validateInput(_myController.text, context);
+              if (validateInput(_myController.text, context)) {
+                Provider.of<MainviewNotifier>(context, listen: false)
+                    .addTask(_myController.text);
+                Navigator.pop(context);
+              }
             },
           ),
           Consumer<MyErrorNotifier>(
-              builder: (context, myChangeNotifier, child) => Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                        Provider.of<MyErrorNotifier>(context, listen: false)
-                            .getErrorMessage,
-                        style: const TextStyle(
-                            color: Color.fromARGB(255, 182, 87, 81))),
-                  )))
+              builder: (context, mainviewNotifier, child) =>
+                  errorMessage(context))
         ],
       ),
     );
   }
 
-  validateInput(String input, context) {
-    if (input == '') {
-      Provider.of<MyErrorNotifier>(context, listen: false)
-          .setErrorMessage(true);
-    } else {
-      Provider.of<MyChangeNotifier>(context, listen: false)
-          .addTask(_myController.text);
-      Navigator.pop(context);
-    }
-  }
-
   Widget addButtonAddView(context) {
     return ElevatedButton.icon(
       onPressed: () {
-        validateInput(_myController.text, context);
+        if (validateInput(_myController.text, context)) {
+          Provider.of<MainviewNotifier>(context, listen: false)
+              .addTask(_myController.text);
+          Navigator.pop(context);
+        }
       },
-      style:
-          ElevatedButton.styleFrom(primary: Color.fromARGB(100, 255, 255, 255)),
+      style: ElevatedButton.styleFrom(primary: appbarColor),
       icon: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: Icon(Icons.add_circle_sharp, size: 30),
-      ),
+          padding: const EdgeInsets.all(5.0),
+          child: Icon(
+            Icons.add,
+            size: 20,
+            color: Colors.white,
+          )),
       label: const Text('Add', style: TextStyle(fontSize: 16)),
     );
   }
