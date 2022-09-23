@@ -1,9 +1,13 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart';
+
+import 'appbar.dart';
+import 'addview.dart';
+import 'editview.dart';
+import 'notifier.dart';
 
 const int figmaGrey = 0xffC4C4C4;
-const List<String> list = <String>['All', 'Done', 'Undone'];
 
 void main() {
   runApp(MyApp());
@@ -12,197 +16,115 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: MainView(),
-        theme: ThemeData(fontFamily: 'RobotoRegular'));
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => MyChangeNotifier()),
+        ChangeNotifierProvider(create: (context) => MyErrorNotifier())
+      ],
+      child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: MainView(),
+          theme: ThemeData(fontFamily: 'RobotoRegular')),
+    );
   }
-}
-
-PreferredSize _appBarMain() {
-  return PreferredSize(
-    preferredSize: Size.fromHeight(48),
-    child: AppBar(
-      centerTitle: true,
-      title: const Text(
-        'TIG333 TODO',
-        style: TextStyle(fontSize: 26, color: Colors.black),
-      ),
-      backgroundColor: Color(figmaGrey),
-      actions: [DropdownButtonExample()],
-    ),
-  );
-}
-
-PreferredSize _appBarSecond() {
-  return PreferredSize(
-    preferredSize: Size.fromHeight(48),
-    child: AppBar(
-      centerTitle: true,
-      title: const Text(
-        'TIG333 TODO',
-        style: TextStyle(fontSize: 26, color: Colors.black),
-      ),
-      backgroundColor: Color(figmaGrey),
-    ),
-  );
 }
 
 class MainView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _appBarMain(),
-      body: _checkList(context),
+        appBar: appBarMain(context),
+        body: Column(children: [
+          rowTasks(),
+          addButtonFirstView(context),
+        ]));
+  }
+
+  Widget rowTasks() {
+    return Expanded(
+      child: Consumer<MyChangeNotifier>(
+          builder: (context, myChangeNotifier, child) => ListView.builder(
+              itemBuilder: (context, index) =>
+                  listTile(myChangeNotifier.getListTasks[index], context),
+              itemCount: myChangeNotifier.getListTasks.length)),
     );
   }
 
-  Widget _checkList(context) {
-    return Column(children: [
-      Expanded(
-          child: ListView.builder(
-              itemBuilder: (context, index) => _row(_list()[index]),
-              itemCount: _list().length)),
-      Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: EdgeInsets.all(15),
-            child: SizedBox(
-              width: 56,
-              height: 56,
-              child: FloatingActionButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => SecondView()));
-                  },
-                  backgroundColor: Color(figmaGrey),
-                  child: Icon(
-                    Icons.add,
-                    size: 56,
-                  )),
-            ),
-          ))
-    ]);
-  }
-
-  List _list() {
-    return [
-      'Write a book',
-      'Do homework',
-      'Tidy room',
-      'Watch TV',
-      'Roboto font test'
-    ];
-  }
-
-  Widget _row(text) {
-    return Container(
-      decoration: BoxDecoration(
-          border:
-              Border(bottom: BorderSide(width: 1, color: Color(figmaGrey)))),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 18),
-            child: Checkbox(value: false, onChanged: (bool? value) {}),
+  Widget addButtonFirstView(context) {
+    return Align(
+        alignment: Alignment.bottomRight,
+        child: Padding(
+          padding: EdgeInsets.all(15),
+          child: SizedBox(
+            width: 56,
+            height: 56,
+            child: FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AddView()));
+                },
+                backgroundColor: Color(figmaGrey),
+                child: Icon(
+                  Icons.add,
+                  size: 56,
+                )),
           ),
-          Padding(
-              padding: const EdgeInsets.only(left: 22, top: 20, bottom: 20),
-              child: Text(
-                text,
-                //style: TextStyle(fontFamily: ''),
-              )),
-          Expanded(
-              child: Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: EdgeInsets.only(right: 18),
-                    child: IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () {},
-                    ),
-                  ))),
+        ));
+  }
+
+  Widget listTile(Task task, context) {
+    return ListTile(
+      shape: Border(bottom: BorderSide(color: Color(figmaGrey), width: 1)),
+      leading: checkBox(task, context),
+      title: textListTile(task, context),
+      trailing: Wrap(
+        spacing: 10,
+        children: [
+          editButtonMainView(task, context),
+          deleteButton(task, context)
         ],
       ),
     );
   }
-}
 
-class SecondView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _appBarSecond(),
-      body: Center(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 40, bottom: 40),
-              child: _textField(context),
-            ),
-            _addButton()
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _addButton() {
-    return TextButton.icon(
-      // <-- TextButton
-      onPressed: () {},
-      style: TextButton.styleFrom(primary: Colors.black),
-      icon: Icon(
-        Icons.add,
-        size: 25.0,
-      ),
-      label: Text('Add', style: TextStyle(fontSize: 16)),
-    );
-  }
-
-  Widget _textField(context) {
-    return Container(
-        height: 50,
-        width: MediaQuery.of(context).size.width *
-            351 /
-            411, // Satt boxen till samma proportioner som i figma
-        decoration: BoxDecoration(
-            border: Border.all(width: 2),
-            borderRadius: BorderRadius.all(Radius.circular(4))),
-        child: TextField());
-  }
-}
-
-class DropdownButtonExample extends StatefulWidget {
-  const DropdownButtonExample({super.key});
-
-  @override
-  State<DropdownButtonExample> createState() => _DropdownButtonExampleState();
-}
-
-class _DropdownButtonExampleState extends State<DropdownButtonExample> {
-  String dropdownValue = list.first;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      value: dropdownValue,
-      icon: const Icon(
-        Icons.more_vert,
-        color: Colors.black,
-      ),
-      style: const TextStyle(color: Colors.black),
-      onChanged: (String? value) {
-        setState(() {
-          dropdownValue = value!;
+  Widget checkBox(Task task, context) {
+    return Checkbox(
+        value: task.getDone,
+        onChanged: (bool? valueDone) {
+          Provider.of<MyChangeNotifier>(context, listen: false)
+              .changeTaskDone(task.getId, valueDone);
         });
+  }
+
+  Widget textListTile(Task task, context) {
+    if (task.getDone == true) {
+      return Text(task.getLabel,
+          style: TextStyle(decoration: TextDecoration.lineThrough));
+    } else {
+      return Text(task.getLabel);
+    }
+  }
+
+  Widget editButtonMainView(Task task, context) {
+    return IconButton(
+        onPressed: () async {
+          var newLabel = await Navigator.push(context,
+              MaterialPageRoute(builder: (context) => EditView(task.getLabel)));
+          if (newLabel != null) {
+            Provider.of<MyChangeNotifier>(context, listen: false)
+                .editTask(newLabel, task.getId);
+          }
+        },
+        icon: Icon(Icons.edit));
+  }
+
+  Widget deleteButton(Task task, context) {
+    return IconButton(
+      icon: Icon(Icons.close),
+      onPressed: () {
+        Provider.of<MyChangeNotifier>(context, listen: false).deleteTask =
+            task.getId;
       },
-      items: list.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
     );
   }
 }
