@@ -2,87 +2,82 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'appbar.dart';
-import 'notifier.dart';
+import 'themes.dart';
+import 'error_notifier.dart';
 
 class EditView extends StatelessWidget {
-  TextEditingController _myController = TextEditingController();
+  final TextEditingController _myController = TextEditingController();
   EditView(String label) {
     _myController.text = label;
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar('Edit TODO'),
-      body: Center(
-        child: Column(
+        appBar: appBarAddEdit('Edit TODO'),
+        body: Stack(
           children: [
-            Container(height: 40),
-            textFieldContainer(context),
-            Container(height: 40),
-            editButtonEditView(context)
+            backgroundImage(),
+            filterBackgroundImage(),
+            Center(
+              child: Column(
+                children: [
+                  Container(height: 40),
+                  textField(context),
+                  Container(height: 40),
+                  editButtonEditView(context)
+                ],
+              ),
+            ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget editButtonEditView(context) {
-    return TextButton.icon(
-      // <-- TextButton
+    return ElevatedButton.icon(
       onPressed: () {
-        validateInput(_myController.text, context);
+        if (validateInput(_myController.text, context)) {
+          Navigator.pop(context, _myController.text);
+        }
       },
-      style: TextButton.styleFrom(primary: Colors.black),
-      icon: Icon(
-        Icons.save,
-        size: 25.0,
-      ),
-      label: Text('Save', style: TextStyle(fontSize: 16)),
-    );
-  }
-
-  Widget textFieldContainer(context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 351 / 411,
-      child: Column(
-        children: [textField(context), errorMessage()],
-      ),
+      style: ElevatedButton.styleFrom(primary: appbarColor),
+      icon: const Padding(
+          padding: EdgeInsets.all(5.0),
+          child: Icon(
+            Icons.save,
+            size: 20,
+            color: Colors.white,
+          )),
+      label: const Text('Save', style: TextStyle(fontSize: 16)),
     );
   }
 
   Widget textField(context) {
-    return Container(
-        height: 50,
-        // Satt boxen till samma proportioner som i figma
-        decoration: BoxDecoration(
-            border: Border.all(width: 1),
-            borderRadius: BorderRadius.all(Radius.circular(10))),
-        child: TextField(
-          controller: _myController,
-          onSubmitted: (value) {
-            validateInput(_myController.text, context);
-          },
-        ));
-  }
-
-  Widget errorMessage() {
-    return Consumer<MyErrorNotifier>(
-        builder: (context, myChangeNotifier, child) => Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-                Provider.of<MyErrorNotifier>(context, listen: false)
-                    .getErrorMessage,
-                style: TextStyle(color: Colors.red))));
-  }
-
-  validateInput(String input, context) {
-    if (input == '') {
-      Provider.of<MyErrorNotifier>(context, listen: false)
-          .setErrorMessage(true);
-    } else {
-      Provider.of<MyErrorNotifier>(context, listen: false)
-          .setErrorMessage(false);
-      Navigator.pop(context, input);
-    }
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          TextField(
+            cursorColor: iconColor,
+            style: TextStyle(color: textColor),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: borderRadius,
+              ),
+              filled: true,
+              fillColor: boxColor,
+            ),
+            controller: _myController,
+            onSubmitted: (value) {
+              if (validateInput(_myController.text, context)) {
+                Navigator.pop(context, _myController.text);
+              }
+            },
+          ),
+          Consumer<MyErrorNotifier>(
+              builder: (context, myChangeNotifier, child) =>
+                  errorMessage(context))
+        ],
+      ),
+    );
   }
 }

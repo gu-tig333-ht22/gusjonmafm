@@ -1,80 +1,88 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/mainview_builder_notifier.dart';
+import 'package:flutter_application_1/themes.dart';
 import 'package:provider/provider.dart';
 
 import 'appbar.dart';
-import 'notifier.dart';
+import 'themes.dart';
+import 'error_notifier.dart';
 
 class AddView extends StatelessWidget {
-  TextEditingController _myController = TextEditingController();
+  final TextEditingController _myController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar('Add TODO'),
-      body: Center(
-        child: Column(
-          children: [
-            Container(height: 40),
-            textField(context),
-            Container(height: 40),
-            addButtonAddView(context)
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget textField(context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 351 / 411,
-      child: Column(
+      appBar: appBarAddEdit('Add TODO'),
+      body: Stack(
         children: [
-          Container(
-              height: 50,
-              // Satt boxen till samma proportioner som i figma
-              decoration: BoxDecoration(
-                  border: Border.all(width: 1),
-                  borderRadius: BorderRadius.all(Radius.circular(10))),
-              child: TextField(
-                decoration: InputDecoration(hintText: 'Type in your todo'),
-                controller: _myController,
-                onSubmitted: (value) {
-                  validateInput(_myController.text, context);
-                },
-              )),
-          Consumer<MyErrorNotifier>(
-              builder: (context, myChangeNotifier, child) => Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                      Provider.of<MyErrorNotifier>(context, listen: false)
-                          .getErrorMessage,
-                      style: TextStyle(color: Colors.red))))
+          backgroundImage(),
+          filterBackgroundImage(),
+          Center(
+            child: Column(
+              children: [
+                Container(height: 40),
+                textField(context),
+                Container(height: 40),
+                addButtonAddView(context)
+              ],
+            ),
+          )
         ],
       ),
     );
   }
 
-  validateInput(String input, context) {
-    if (input == '') {
-      Provider.of<MyErrorNotifier>(context, listen: false)
-          .setErrorMessage(true);
-    } else {
-      Provider.of<MyErrorNotifier>(context, listen: false)
-          .setErrorMessage(false);
-      Provider.of<MyChangeNotifier>(context, listen: false)
-          .addTask(_myController.text);
-      Navigator.pop(context);
-    }
+  Widget textField(context) {
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          TextField(
+            cursorColor: iconColor,
+            style: TextStyle(color: textColor),
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: borderRadius,
+                ),
+                filled: true,
+                fillColor: boxColor,
+                hintText: 'Type in your todo'),
+            controller: _myController,
+            onSubmitted: (value) {
+              if (validateInput(_myController.text, context)) {
+                Provider.of<MainviewNotifier>(context, listen: false)
+                    .addTask(_myController.text);
+                Navigator.pop(context);
+              }
+            },
+          ),
+          Consumer<MyErrorNotifier>(
+              builder: (context, mainviewNotifier, child) =>
+                  errorMessage(context))
+        ],
+      ),
+    );
   }
 
   Widget addButtonAddView(context) {
-    return TextButton.icon(
+    return ElevatedButton.icon(
       onPressed: () {
-        validateInput(_myController.text, context);
+        if (validateInput(_myController.text, context)) {
+          Provider.of<MainviewNotifier>(context, listen: false)
+              .addTask(_myController.text);
+          Navigator.pop(context);
+        }
       },
-      style: TextButton.styleFrom(primary: Colors.black),
-      icon: Icon(Icons.add),
-      label: Text('Add', style: TextStyle(fontSize: 16)),
+      style: ElevatedButton.styleFrom(primary: appbarColor),
+      icon: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Icon(
+            Icons.add,
+            size: 20,
+            color: Colors.white,
+          )),
+      label: const Text('Add', style: TextStyle(fontSize: 16)),
     );
   }
 }
