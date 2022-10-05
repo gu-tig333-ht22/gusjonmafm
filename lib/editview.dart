@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'appbar.dart';
 import 'themes.dart';
 import 'error_notifier.dart';
 
@@ -13,7 +12,14 @@ class EditView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: appBarAddEdit('Edit TODO'),
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(
+            'Edit TODO',
+            style: TextStyle(fontSize: fontsizeAppbar, color: textColor),
+          ),
+          backgroundColor: appbarColor,
+        ),
         body: Stack(
           children: [
             backgroundImage(),
@@ -22,9 +28,9 @@ class EditView extends StatelessWidget {
               child: Column(
                 children: [
                   Container(height: 40),
-                  textField(context),
+                  _textField(context),
                   Container(height: 40),
-                  editButtonEditView(context)
+                  _editButtonEditView(context)
                 ],
               ),
             ),
@@ -32,7 +38,7 @@ class EditView extends StatelessWidget {
         ));
   }
 
-  Widget editButtonEditView(context) {
+  Widget _editButtonEditView(context) {
     return ElevatedButton.icon(
       onPressed: () {
         if (validateInput(_myController.text, context)) {
@@ -51,7 +57,7 @@ class EditView extends StatelessWidget {
     );
   }
 
-  Widget textField(context) {
+  Widget _textField(context) {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Column(
